@@ -81,8 +81,8 @@ adb devices -l     # deve mostrar "device" (e não "unauthorized")
 
 ### 3. Baixar este repositório
 ```bash
-git clone <url-deste-repositorio>
-cd <pasta-do-repositorio>
+git clone https://github.com/gvtenberg/debloat-tcl-google-tv.git
+cd debloat-tcl-google-tv
 export TV_IP=192.168.1.50     # troque pelo IP da SUA TV
 ```
 
