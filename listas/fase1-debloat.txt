@@ -19,6 +19,10 @@ com.tcl.bi                         # [TCL] telemetria (Business Intelligence)
 com.tcl.logkit                     # [TCL] coleta de logs
 com.tcl.guard                      # [TCL] T-Guard (limpeza/antivírus), fica sempre rodando
 com.tcl.versionUpdateApp           # [TCL] atualização de firmware (evita updates com mais anúncios)
+com.tcl.dashboard                  # [TCL] "Dashboard": caixa de presentes/promoções e mensagens
+com.tcl.tv.tclhome_passive         # [TCL] serviço da TCL Home: roda no boot, conta TCL, autoatualização
+# Mantidos de propósito: com.tcl.t_solo ("Ouvir sozinho" em fone Bluetooth, não fica rodando)
+# e com.tcl.keyhelp (ajudante interno de teclas do sistema, sem telas próprias).
 
 # --- TCL: recursos não utilizados ---
 com.tcl.smartalexa                 # [TCL] integração com Alexa

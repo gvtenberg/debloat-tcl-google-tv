@@ -37,7 +37,7 @@ adb shell getprop ro.product.cpu.abi      # arquitetura (armeabi-v7a = 32 bits)
 |---|---|---|
 | Memória livre com a TV parada | ~370 MB | **~555 MB** (+50%) |
 | Tela inicial | Google TV com recomendações e anúncios | [LTvLauncher](https://github.com/leanbitlab-org/LtvLauncher), limpo e open source |
-| Apps desativados | 4 | 32 |
+| Apps desativados | 4 | 34 |
 | Atualização automática de firmware TCL | ligada | desligada |
 
 **Continua funcionando:** TV por antena, entradas HDMI, SmartTube, Jellyfin, Netflix, Prime Video, HBO Max, Aurora Store, X-plore, TV Bro, pesquisa por voz (inclusive dentro do SmartTube), Chromecast, proteção de tela "Ambiente" e TCL Channel. Na Etapa 2, os botões **YouTube** e **TCL Channel** do controle passam a abrir o SmartTube e o app TV.
@@ -99,7 +99,7 @@ Salva em `backup/<data-hora>/` a lista de apps, as configurações e o uso de me
 ```
 
 O que é desativado, em resumo:
-- **TCL, propaganda e telemetria:** vitrine de apps, feed de conteúdo, "adesivos" promocionais, mensagens promocionais, telemetria (`com.tcl.bi`), coleta de logs, T-Guard e o **atualizador de firmware** (cada atualização trazia mais anúncios).
+- **TCL, propaganda e telemetria:** vitrine de apps, feed de conteúdo, "adesivos" promocionais, mensagens promocionais, telemetria (`com.tcl.bi`), coleta de logs, T-Guard, "Dashboard" com caixa de presentes/promoções, serviço passivo da TCL Home (roda no boot e se autoatualiza) e o **atualizador de firmware** (cada atualização trazia mais anúncios).
 - **TCL, recursos pouco usados:** Alexa, barra de jogos, assistente auditivo, manual eletrônico, navegador, galeria, player de pendrive, Miracast, T-Cast e multitela.
 - **Google/Android:** instalador automático de apps de parceiros (`gtvpai`), configuração pelo celular, feedback, TalkBack, SMS, câmera e impressão.
 - **Terceiros:** Spotify.
@@ -156,6 +156,12 @@ O script baixa o APK do GitHub, confere o SHA-256, instala e:
 
 **Para desfazer:** `./scripts/remover-keymapper.sh`
 
+**Backup dos mapeamentos:** o backup do próprio Key Mapper (menu ⋮) **não funciona** em muitas Google TV, porque elas não têm o seletor de arquivos do Android (só um "stub" vazio). Use o backup pelo ADB. Ele fica no computador e serve para restaurar na mesma TV depois de reinstalar o app ou resetar:
+```bash
+adb backup -f backup/keymapper.ab io.github.sds100.keymapper   # na TV: "Fazer backup", senha em branco
+adb restore backup/keymapper.ab                                # para restaurar (confirme na TV)
+```
+
 ### 9. Etapa 3: teclado de tela com Home Assistant (ou app de controle no celular)
 **Sintoma:** com o Home Assistant ligado, o teclado não aparece na tela ao clicar num campo de texto (pesquisa do SmartTube, endereço do navegador etc.).
 
@@ -204,6 +210,9 @@ Pouco. Medindo pelo log, o Android leva ~23 s só para carregar o sistema, antes
 
 **Por que desativar e não desinstalar?**
 `pm disable-user` é reversível com um comando e não mexe na partição do sistema. Se algum app não aceitar ser desativado, o script usa `pm uninstall -k --user 0`, que também é reversível (`cmd package install-existing <pacote>`).
+
+**A TV tem um "usuário" ou perfil que eu não criei. Posso remover?**
+Veja os usuários com `adb shell pm list users`. Nesta TV havia um perfil de trabalho órfão (`new_user`, tipo `MANAGED`), sem nenhum app administrador, provavelmente sobra de uma configuração interrompida. Ele foi removido com `adb shell pm remove-user <ID>`. ⚠️ Essa remoção **não tem volta** e apaga os dados daquele perfil. **Nunca remova o usuário 0**, que é o principal.
 
 **Uma atualização da TV vai desfazer tudo?**
 Pode reativar apps. Por isso o atualizador da TCL (`com.tcl.versionUpdateApp`) fica desativado. Se quiser atualizar algum dia, reative-o, atualize e rode os scripts de novo.
