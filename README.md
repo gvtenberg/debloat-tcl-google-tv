@@ -40,7 +40,7 @@ adb shell getprop ro.product.cpu.abi      # arquitetura (armeabi-v7a = 32 bits)
 | Apps desativados | 4 | 32 |
 | Atualização automática de firmware TCL | ligada | desligada |
 
-**Continua funcionando:** TV por antena, entradas HDMI, SmartTube, Jellyfin, Netflix, Prime Video, HBO Max, Aurora Store, X-plore, TV Bro, pesquisa por voz (inclusive dentro do SmartTube), Chromecast, proteção de tela "Ambiente" e TCL Channel.
+**Continua funcionando:** TV por antena, entradas HDMI, SmartTube, Jellyfin, Netflix, Prime Video, HBO Max, Aurora Store, X-plore, TV Bro, pesquisa por voz (inclusive dentro do SmartTube), Chromecast, proteção de tela "Ambiente" e TCL Channel. Na Etapa 2, os botões **YouTube** e **TCL Channel** do controle passam a abrir o SmartTube e o app TV.
 
 **Efeito colateral conhecido:** o botão de **Configurações** (engrenagem) do controle para de funcionar, porque quem o tratava era o launcher do Google TV. Abra as configurações pelo ícone do LTvLauncher.
 
@@ -128,6 +128,34 @@ Aperte **Home** no controle: deve abrir o LTvLauncher. Organize os favoritos pel
 adb reboot
 ```
 
+### 8. Etapa 2: botões YouTube e TCL Channel do controle
+Depois do debloat, os botões **YouTube** e **TCL Channel** do controle param de fazer qualquer coisa:
+- O sistema da TCL (`TclPhoneWindowManager`) tem o YouTube oficial (`com.google.android.youtube.tv`) **fixo no código**. Sem ele instalado, o botão não faz nada.
+- O botão TCL Channel chamava o app `com.tcl.partnercustomizer`, que também foi removido.
+
+A solução é o **[Key Mapper](https://github.com/keymapperorg/KeyMapper)** (open source, GPL-3.0, versão FOSS). Ele usa um serviço de acessibilidade para "pegar" a tecla **antes** do sistema da TCL e abrir o app que você escolher. Usa ~15 MB de RAM.
+
+**1. Instalar e ativar pelo computador:**
+```bash
+./scripts/instalar-keymapper.sh
+```
+O script baixa o APK do GitHub, confere o SHA-256, instala e:
+- ativa o serviço de acessibilidade do Key Mapper;
+- coloca o app na lista de exceções da economia de energia;
+- 🔴 **[TCL] concede a permissão `APP_AUTO_START`.** Sem ela, o bloqueador de inicialização da TCL (`TclAppBoot`) impede o Key Mapper de iniciar depois de reiniciar a TV, e os botões param de funcionar a cada boot. É por isso que remapeadores como o "Home Button" costumam "não funcionar" nas TVs TCL.
+
+**2. Criar os mapeamentos na TV, com o controle.** Cada botão precisa do **seu próprio** mapa de teclas. Se você colocar dois botões no mesmo mapa, o Key Mapper entende "apertar os dois juntos".
+1. Abra o **Key Mapper** e selecione **"+ Novo mapa de teclas"**.
+2. **"Toque para gravar o gatilho"** e aperte o botão **YouTube**. Deve aparecer **"Código-chave 4065"**.
+3. **"Adicionar ação"** → **"Iniciar aplicativo"** → **SmartTube**.
+4. Salve pela **seta ←** no canto inferior esquerdo.
+5. De volta à tela inicial do Key Mapper, selecione **"+"** de novo para criar o **segundo** mapa: grave o botão **TCL Channel** (**"Código-chave 4020"**) → **"Iniciar aplicativo"** → **TV**.
+6. Salve. A tela inicial do Key Mapper deve mostrar **dois cartões separados**.
+
+> Os códigos 4065 (YouTube) e 4020 (TCL Channel) são deste controle (TCL RC902V). Em outros controles podem ser diferentes; o Key Mapper mostra o código ao gravar.
+
+**Para desfazer:** `./scripts/remover-keymapper.sh`
+
 ---
 
 ## ↩️ Como desfazer
@@ -189,10 +217,15 @@ Rode o [Claude Code](https://claude.com/claude-code) **numa pasta vazia** do com
 5. 🌐 **Para reiniciar sem o controle:**
    > Quando precisar reiniciar a TV, reinicie pelo computador.
 
+6. 🔴 **Para remapear botões do controle:**
+   > Quero que o botão YouTube do controle abra o SmartTube e que o botão TCL Channel abra o app TV. Hoje nenhum dos dois abre nada. Descubra pelo log qual código cada botão envia e quem o trata, e me sugira um app open source para remapear (só instale com minha permissão). Depois reinicie a TV e confirme que continua funcionando.
+
+   *(As teclas tratadas no `TclPhoneWindowManager` e o bloqueio `APP_AUTO_START` são da TCL. A ideia de usar um remapeador por acessibilidade vale para qualquer Android TV.)*
+
 > ℹ️ **O que é específico de quê:**
 > - **Qualquer Android TV:** ADB pela rede, backup, `pm disable-user`, scripts de reversão.
 > - **Google TV:** `launcherx`, `setupwraith`, `dreamx`, `gtvpai`, `tv.remote.service` e a necessidade de desativar o launcher para trocá-lo (o Google TV ignora o "launcher padrão").
-> - **TCL:** todos os pacotes `com.tcl.*` em [`listas/fase1-debloat.txt`](listas/fase1-debloat.txt) e o menu Energia > Iniciar rápido.
+> - **TCL:** todos os pacotes `com.tcl.*` em [`listas/fase1-debloat.txt`](listas/fase1-debloat.txt), o menu Energia > Iniciar rápido, os códigos de tecla 4065/4020 e a permissão `APP_AUTO_START`.
 > - **Este modelo (Realtek RT51M, 32 bits):** o APK `armeabi-v7a` do launcher. TVs com chip 64 bits usam `arm64-v8a`.
 >
 > Em outra marca (Samsung não é Android; Philips, Sony, Xiaomi, etc. são), use o prompt 1: o Claude lista os apps da *sua* TV e monta uma lista própria.
@@ -208,6 +241,8 @@ scripts/backup.sh            salva o estado da TV (somente leitura)
 scripts/debloat.sh           desativa os apps de uma lista
 scripts/reverter.sh          reativa os apps de uma lista
 scripts/instalar-launcher.sh baixa (GitHub oficial), confere e instala o LTvLauncher
+scripts/instalar-keymapper.sh baixa, confere, instala e ativa o Key Mapper (botões do controle)
+scripts/remover-keymapper.sh desfaz a instalação do Key Mapper
 scripts/comum.sh             funções compartilhadas pelos scripts
 ```
 
