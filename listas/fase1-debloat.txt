@@ -1,0 +1,47 @@
+# Fase 1 — apps desativados (debloat)
+# TV: TCL Google TV, Android TV 11 (plataforma Realtek RTD288O / RT51M, 2021)
+#
+# Formato: <pacote>   # descrição
+# Linhas começando com # são ignoradas. Remova (ou comente) uma linha para
+# manter o app. Tudo é reversível com scripts/reverter.sh.
+#
+# NÃO incluir: com.tcl.tv, com.tcl.tvinput (TV por antena e HDMI),
+# com.tcl.settings, com.tcl.suspension (painel rápido), com.tcl.autopair,
+# com.tcl.tcl_bt_rcu_service, com.tcl.micmanager (controle remoto e microfone),
+# com.tcl.initsetup, com.tcl.useragreement, com.tcl.factory.view.
+
+# --- TCL: propaganda, recomendações e telemetria ---
+com.tcl.overseasappshow            # [TCL] vitrine/recomendação de apps (propaganda)
+com.tcl.waterfall.overseas         # [TCL] feed de conteúdo/anúncios da TCL
+com.tcl.esticker                   # [TCL] "adesivos" promocionais na tela
+com.tcl.messagebox                 # [TCL] mensagens/notificações promocionais
+com.tcl.bi                         # [TCL] telemetria (Business Intelligence)
+com.tcl.logkit                     # [TCL] coleta de logs
+com.tcl.guard                      # [TCL] T-Guard (limpeza/antivírus), fica sempre rodando
+com.tcl.versionUpdateApp           # [TCL] atualização de firmware (evita updates com mais anúncios)
+
+# --- TCL: recursos não utilizados ---
+com.tcl.smartalexa                 # [TCL] integração com Alexa
+com.tcl.gamebar                    # [TCL] barra de jogos
+com.tcl.hearaid                    # [TCL] assistente auditivo
+com.tcl.ocean.instructions         # [TCL] manual eletrônico
+com.tcl.browser                    # [TCL] navegador da TCL (uso o TV Bro)
+com.tcl.gallery                    # [TCL] galeria de fotos (uso o X-plore)
+com.tcl.ui_mediaCenter             # [TCL] player de pendrive (uso o X-plore)
+com.tcl.miracast                   # [TCL] espelhamento de tela Miracast
+com.tcl.magiconnectfree            # [TCL] T-Cast / MagiConnect
+com.tcl.MultiScreenInteraction_TV  # [TCL] interação multitela
+
+# --- Google / Android: recursos não utilizados ---
+android.autoinstalls.config.google.gtvpai  # [Google TV] instala apps de parceiros automaticamente
+# com.google.android.tv.remote.service     # NÃO DESATIVAR: além do controle pelo celular, cuida do
+#                                          # microfone do controle Bluetooth (sem ele a pesquisa por voz fica muda)
+com.google.android.apps.nbu.smartconnect.tv # [Google TV] configuração/conexão pelo celular
+com.google.android.feedback                # [Android] envio de feedback ao Google
+com.google.android.marvin.talkback         # [Android] leitor de tela TalkBack
+com.android.messaging                      # [Android] app de SMS (inútil na TV)
+com.android.camera2                        # [Android] câmera (a TV não tem câmera)
+com.android.printspooler                   # [Android] serviço de impressão
+
+# --- Apps de terceiros não utilizados ---
+com.spotify.tv.android             # Spotify

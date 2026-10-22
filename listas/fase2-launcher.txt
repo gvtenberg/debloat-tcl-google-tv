@@ -1,0 +1,8 @@
+# Fase 2 — trocar a tela inicial do Google TV por um launcher open source
+# Só rode DEPOIS de instalar o novo launcher (scripts/instalar-launcher.sh).
+# Reverter: TV_IP=... ./scripts/reverter.sh listas/fase2-launcher.txt
+
+com.google.android.apps.tv.launcherx      # [Google TV] tela inicial com recomendações/anúncios (~155 MB de RAM)
+com.google.android.tungsten.setupwraith   # [Google TV] assistente de configuração; com o launcherx desativado,
+                                          # ele vira a tela inicial ("Recovery"). Reative se precisar
+                                          # refazer a configuração inicial ou adicionar conta Google.

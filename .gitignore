@@ -1,0 +1,9 @@
+# Foto com dados da TV (pode conter número de série) — não publicar
+SobreTV.jpg
+
+# Backups locais da TV (contêm dados específicos do aparelho)
+backup/
+
+# APKs baixados (não redistribuir binários de terceiros)
+*.apk
+apks/
