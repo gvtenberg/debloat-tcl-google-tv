@@ -156,6 +156,27 @@ O script baixa o APK do GitHub, confere o SHA-256, instala e:
 
 **Para desfazer:** `./scripts/remover-keymapper.sh`
 
+### 9. Etapa 3: teclado de tela com Home Assistant (ou app de controle no celular)
+**Sintoma:** com o Home Assistant ligado, o teclado não aparece na tela ao clicar num campo de texto (pesquisa do SmartTube, endereço do navegador etc.).
+
+**Causa:** a integração **"Android TV Remote"** do Home Assistant usa o mesmo protocolo do app de controle remoto do celular (porta 6466). Enquanto há um "controle pelo celular" conectado, o Google TV troca o teclado da TV por um **teclado-ponte** (`ImeBridgeService`), que manda a digitação para o celular. Como o HA fica conectado o tempo todo, o teclado de tela some para sempre. Desabilitar só a ponte **não basta**: na próxima reconexão do HA, o `tv.remote.service` a impõe de novo. E o `tv.remote.service` não pode ser desativado, porque cuida do microfone do controle.
+
+**Solução:**
+1. **No Home Assistant**, troque a integração **Android TV Remote** pela **Android Debug Bridge** (ADB), que já vem no HA e não mexe no teclado:
+   - **Configurações > Dispositivos e serviços > + Adicionar integração > Android Debug Bridge**.
+   - **Host:** o IP da TV. **Porta:** `5555`. Deixe a chave ADB e o servidor ADB **em branco**.
+   - Na TV, aceite **"Permitir depuração?"** marcando **"Sempre permitir deste computador"**.
+   - Nas opções da integração, desative a captura de tela (screencap) como imagem, para não pesar na TV.
+   - Teste a nova entidade (estado, app aberto em `app_id`, volume). Teclas são enviadas pela ação `androidtv.adb_command` (ex.: `HOME`, `BACK`, `UP`).
+   - **Desative** (não exclua) a integração **Android TV Remote** e atualize automações e painéis para a nova entidade.
+2. **No computador**, deixe o Gboard como teclado padrão e desabilite a ponte:
+   ```bash
+   ./scripts/teclado-gboard.sh
+   ```
+3. Reinicie a TV (`adb reboot`) e confira se o teclado aparece.
+
+**Para desfazer:** `./scripts/teclado-gboard.sh reverter` e reative a integração Android TV Remote no HA.
+
 ---
 
 ## ↩️ Como desfazer
@@ -222,6 +243,11 @@ Rode o [Claude Code](https://claude.com/claude-code) **numa pasta vazia** do com
 
    *(As teclas tratadas no `TclPhoneWindowManager` e o bloqueio `APP_AUTO_START` são da TCL. A ideia de usar um remapeador por acessibilidade vale para qualquer Android TV.)*
 
+7. 🔵 **Para o teclado sumir com o Home Assistant:**
+   > Quero fazer o teclado do Google funcionar quando o Home Assistant está ativo. Hoje, com ele ligado, não aparece teclado na tela. Investigue a causa e me dê sugestões antes de mudar algo.
+
+   *(O teclado-ponte `ImeBridgeService` e a integração Android TV Remote afetam qualquer Google TV ou Android TV com o "Android TV Remote Service", de qualquer marca.)*
+
 > ℹ️ **O que é específico de quê:**
 > - **Qualquer Android TV:** ADB pela rede, backup, `pm disable-user`, scripts de reversão.
 > - **Google TV:** `launcherx`, `setupwraith`, `dreamx`, `gtvpai`, `tv.remote.service` e a necessidade de desativar o launcher para trocá-lo (o Google TV ignora o "launcher padrão").
@@ -243,6 +269,7 @@ scripts/reverter.sh          reativa os apps de uma lista
 scripts/instalar-launcher.sh baixa (GitHub oficial), confere e instala o LTvLauncher
 scripts/instalar-keymapper.sh baixa, confere, instala e ativa o Key Mapper (botões do controle)
 scripts/remover-keymapper.sh desfaz a instalação do Key Mapper
+scripts/teclado-gboard.sh    Gboard como teclado padrão e desliga o teclado-ponte ("reverter" desfaz)
 scripts/comum.sh             funções compartilhadas pelos scripts
 ```
 
